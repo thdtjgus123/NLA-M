@@ -1,0 +1,275 @@
+﻿<Window x:Class="NLAM.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NLAM.App.Views"
+        xmlns:converters="clr-namespace:NLAM.App.Converters"
+        mc:Ignorable="d"
+        Title="NLAM - Timeline Macro Editor" Height="600" Width="1000">
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewCommand}"/>
+        <KeyBinding Key="O" Modifiers="Control" Command="{Binding LoadCommand}"/>
+        <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}"/>
+        <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAsCommand}"/>
+        <KeyBinding Key="I" Modifiers="Control" Command="{Binding AutoImportCommand}"/>
+        <KeyBinding Key="Z" Modifiers="Control" Command="{Binding UndoCommand}"/>
+        <KeyBinding Key="Y" Modifiers="Control" Command="{Binding RedoCommand}"/>
+        <KeyBinding Key="C" Modifiers="Control" Command="{Binding CopyClipCommand}"/>
+        <KeyBinding Key="V" Modifiers="Control" Command="{Binding PasteClipCommand}"/>
+        <KeyBinding Key="F" Modifiers="Control+Shift" Command="{Binding CodeFixerCommand}"/>
+        <KeyBinding Key="Delete" Command="{Binding DeleteSelectedCommand}"/>
+        <KeyBinding Key="OemPlus" Modifiers="Control" Command="{Binding ZoomInCommand}"/>
+        <KeyBinding Key="OemMinus" Modifiers="Control" Command="{Binding ZoomOutCommand}"/>
+        <KeyBinding Key="D0" Modifiers="Control" Command="{Binding ResetZoomCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding RefreshScriptCommand}"/>
+    </Window.InputBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Menu -->
+            <RowDefinition Height="*"/>    <!-- Content -->
+            <RowDefinition Height="Auto"/> <!-- Status Bar -->
+        </Grid.RowDefinitions>
+
+        <!-- Menu -->
+        <Menu Grid.Row="0" Background="{StaticResource PanelBackgroundBrush}" Foreground="{StaticResource PrimaryTextBrush}">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Command="{Binding NewCommand}" InputGestureText="Ctrl+N">
+                    <MenuItem.Icon>
+                        <TextBlock Text="📄" FontSize="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Open..." Command="{Binding LoadCommand}" InputGestureText="Ctrl+O">
+                    <MenuItem.Icon>
+                        <TextBlock Text="📂" FontSize="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Save" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S">
+                    <MenuItem.Icon>
+                        <TextBlock Text="💾" FontSize="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Save _As..." Command="{Binding SaveAsCommand}" InputGestureText="Ctrl+Shift+S"/>
+                <Separator/>
+                <MenuItem Header="_Export AHK Script..." Command="{Binding ExportScriptCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Text="📜" FontSize="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Auto Import AHK..." Command="{Binding AutoImportCommand}" InputGestureText="Ctrl+I">
+                    <MenuItem.Icon>
+                        <TextBlock Text="🤖" FontSize="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="E_xit" Click="Exit_Click" InputGestureText="Alt+F4"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="_Undo" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z" IsEnabled="False">
+                    <MenuItem.Icon>
+                        <TextBlock Text="↩" FontSize="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Redo" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y" IsEnabled="False">
+                    <MenuItem.Icon>
+                        <TextBlock Text="↪" FontSize="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="Cu_t" Command="ApplicationCommands.Cut" InputGestureText="Ctrl+X"/>
+                <MenuItem Header="_Copy Clip" Command="{Binding CopyClipCommand}" InputGestureText="Ctrl+C"/>
+                <MenuItem Header="_Paste Clip" Command="{Binding PasteClipCommand}" InputGestureText="Ctrl+V"/>
+                <MenuItem Header="_Delete" Command="{Binding DeleteSelectedCommand}" InputGestureText="Del"/>
+                <Separator/>
+                <MenuItem Header="Select _All" Command="{Binding SelectAllCommand}" InputGestureText="Ctrl+A"/>
+                <Separator/>
+                <MenuItem Header="Add _Track" Command="{Binding AddTrackCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Text="➕" FontSize="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Add _Clip to Selected Track" Command="{Binding AddClipCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Text="🎬" FontSize="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="🔧 _Code Fixer (AI)" Command="{Binding CodeFixerCommand}" InputGestureText="Ctrl+Shift+F">
+                    <MenuItem.Icon>
+                        <TextBlock Text="🔧" FontSize="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="_Preferences..." Click="Preferences_Click" InputGestureText="Ctrl+,">
+                    <MenuItem.Icon>
+                        <TextBlock Text="⚙" FontSize="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Header="_Zoom In" Command="{Binding ZoomInCommand}" InputGestureText="Ctrl++">
+                    <MenuItem.Icon>
+                        <TextBlock Text="🔍" FontSize="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Zoom _Out" Command="{Binding ZoomOutCommand}" InputGestureText="Ctrl+-"/>
+                <MenuItem Header="_Fit to View" Command="{Binding FitToViewCommand}" InputGestureText="Ctrl+F"/>
+                <MenuItem Header="_Reset Zoom" Command="{Binding ResetZoomCommand}" InputGestureText="Ctrl+0"/>
+                <Separator/>
+                <MenuItem Header="_Properties Panel" x:Name="PropertiesPanelMenuItem" IsCheckable="True" IsChecked="True" Click="TogglePropertiesPanel_Click"/>
+                <MenuItem Header="_Script Preview" x:Name="ScriptPreviewMenuItem" IsCheckable="True" IsChecked="True" Click="ToggleScriptPreview_Click"/>
+                <MenuItem Header="_Debug Log" x:Name="DebugLogMenuItem" IsCheckable="True" IsChecked="False" Click="ToggleDebugLog_Click"/>
+                <Separator/>
+                <MenuItem Header="_Refresh Script" Command="{Binding RefreshScriptCommand}" InputGestureText="F5"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Playback Controls Toolbar -->
+        <ToolBarTray Grid.Row="0" Margin="0,20,0,0" Background="{StaticResource PanelBackgroundBrush}">
+            <ToolBar Background="{StaticResource PanelBackgroundBrush}" Loaded="ToolBar_Loaded">
+                <Button Content="▶" Width="30" Height="25" Click="PlayButton_Click" ToolTip="Run Script" Foreground="White" Background="{StaticResource PanelBackgroundBrush}"/>
+                <Button Content="⏸" Width="30" Height="25" Click="PauseButton_Click" ToolTip="Pause" Foreground="White" Background="{StaticResource PanelBackgroundBrush}"/>
+                <Button Content="⏹" Width="30" Height="25" Click="StopButton_Click" ToolTip="Stop" Foreground="White" Background="{StaticResource PanelBackgroundBrush}"/>
+                <Separator/>
+                <TextBlock Text="{Binding Timeline.CurrentTime, StringFormat='{}{0:F2}s'}" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}" Margin="5,0"/>
+                <Separator/>
+                <TextBlock Text="Zoom:" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}" Margin="5,0"/>
+                <Button Content="-" Width="25" Height="25" Command="{Binding ZoomOutCommand}" ToolTip="Zoom Out (towards Fit)" Foreground="White" Background="{StaticResource PanelBackgroundBrush}"/>
+                <Slider Value="{Binding Timeline.ZoomLevel}" Minimum="0.01" Maximum="1.0" Width="100" VerticalAlignment="Center" ToolTip="1% = Fit to View, 100% = Max Zoom"/>
+                <TextBlock Text="{Binding Timeline.ZoomLevel, StringFormat='{}{0:P0}'}" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}" Margin="5,0" MinWidth="45" TextAlignment="Center"/>
+                <Button Content="+" Width="25" Height="25" Command="{Binding ZoomInCommand}" ToolTip="Zoom In" Foreground="White" Background="{StaticResource PanelBackgroundBrush}"/>
+                <Button Content="⬚" Width="25" Height="25" Command="{Binding FitToViewCommand}" ToolTip="Fit to View (1%)" Foreground="White" Background="{StaticResource PanelBackgroundBrush}"/>
+            </ToolBar>
+        </ToolBarTray>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/> <!-- Sidebar -->
+                <ColumnDefinition Width="5"/>   <!-- Splitter -->
+                <ColumnDefinition Width="*"/>   <!-- Workspace -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar (Properties Panel) -->
+            <Border x:Name="PropertiesPanel" Grid.Column="0" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10" DataContext="{Binding Properties}">
+                        <TextBlock Text="Properties" FontSize="14" FontWeight="Bold" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,10"/>
+                        
+                        <!-- Clip Properties -->
+                        <Border Background="{StaticResource WindowBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="3" Padding="10">
+                            <StackPanel>
+                                <TextBlock Text="Clip Properties" FontWeight="Bold" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="Name:" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding SelectedClip.Name, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" IsEnabled="{Binding SelectedClip, Converter={x:Static converters:NullToBoolConverter.Instance}}"/>
+                                
+                                <TextBlock Text="Start Time (s):" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding SelectedClip.StartTime, StringFormat=F2, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" IsEnabled="{Binding SelectedClip, Converter={x:Static converters:NullToBoolConverter.Instance}}"/>
+                                
+                                <TextBlock Text="Duration (s):" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding SelectedClip.Duration, StringFormat=F2, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" IsEnabled="{Binding SelectedClip, Converter={x:Static converters:NullToBoolConverter.Instance}}"/>
+                                
+                                <TextBlock Text="Color:" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,5"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" Text="{Binding SelectedClip.Color, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding SelectedClip, Converter={x:Static converters:NullToBoolConverter.Instance}}" Margin="0,0,5,0"/>
+                                    <Button Grid.Column="1" Content="Pick..." Width="50" Click="ColorPicker_Click" IsEnabled="{Binding SelectedClip, Converter={x:Static converters:NullToBoolConverter.Instance}}"/>
+                                </Grid>
+
+                                <Button Content="Edit Script..." Click="EditScript_Click" Margin="0,5,0,0" Padding="10,5" IsEnabled="{Binding SelectedClip, Converter={x:Static converters:NullToBoolConverter.Instance}}"/>
+
+                                <TextBlock Text="Click a clip to edit properties" Foreground="{StaticResource PrimaryTextBrush}" FontStyle="Italic" Margin="0,10,0,0" Visibility="{Binding SelectedClip, Converter={x:Static converters:NullToVisibilityConverter.Instance}}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="{StaticResource BorderBrush}"/>
+
+            <!-- Workspace (Preview + Timeline) -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>   <!-- Preview/Viewport -->
+                    <RowDefinition Height="5"/>   <!-- Splitter -->
+                    <RowDefinition Height="300"/> <!-- Timeline -->
+                    <RowDefinition Height="Auto"/> <!-- Debug Log Splitter -->
+                    <RowDefinition Height="Auto"/> <!-- Debug Log -->
+                </Grid.RowDefinitions>
+
+                <!-- Script Editor -->
+                <Border x:Name="ScriptPreviewPanel" Grid.Row="0" Background="{StaticResource WindowBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <Border Grid.Row="0" Background="{StaticResource PanelBackgroundBrush}" Padding="5">
+                            <Grid>
+                                <TextBlock Text="AutoHotkey Script Preview" Foreground="{StaticResource PrimaryTextBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <Button Content="↻" HorizontalAlignment="Right" Width="25" Height="22" Command="{Binding RefreshScriptCommand}" ToolTip="Refresh Script" FontSize="14"/>
+                            </Grid>
+                        </Border>
+                        
+                        <RichTextBox x:Name="ScriptRichTextBox" Grid.Row="1" 
+                                 FontFamily="Consolas" 
+                                 FontSize="12"
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalScrollBarVisibility="Auto"
+                                 Background="{StaticResource WindowBackgroundBrush}"
+                                 Foreground="{StaticResource PrimaryTextBrush}"
+                                 IsReadOnly="True"
+                                 Padding="5"
+                                 BorderThickness="0"/>
+                    </Grid>
+                </Border>
+
+                <GridSplitter x:Name="ScriptSplitter" Grid.Row="1" Height="5" HorizontalAlignment="Stretch" Background="{StaticResource BorderBrush}"/>
+
+                <!-- Timeline Area -->
+                <Border Grid.Row="2" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+                    <local:TimelineView DataContext="{Binding Timeline}"/>
+                </Border>
+
+                <!-- Debug Log Splitter -->
+                <GridSplitter x:Name="DebugLogSplitter" Grid.Row="3" Height="5" HorizontalAlignment="Stretch" Background="{StaticResource BorderBrush}" Visibility="Collapsed"/>
+
+                <!-- Debug Log Panel -->
+                <Border x:Name="DebugLogPanel" Grid.Row="4" Background="{StaticResource WindowBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Height="120" Visibility="Collapsed">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <Border Grid.Row="0" Background="{StaticResource PanelBackgroundBrush}" Padding="5">
+                            <Grid>
+                                <TextBlock Text="Debug Log" Foreground="{StaticResource PrimaryTextBrush}" FontWeight="Bold"/>
+                                <Button Content="Clear" HorizontalAlignment="Right" Padding="5,2" Click="ClearDebugLog_Click"/>
+                            </Grid>
+                        </Border>
+                        
+                        <ListBox x:Name="DebugLogListBox" Grid.Row="1" 
+                                 ItemsSource="{Binding DebugLogs}" 
+                                 FontFamily="Consolas" 
+                                 FontSize="11"
+                                 Background="{StaticResource WindowBackgroundBrush}"
+                                 Foreground="#10B981"
+                                 BorderThickness="0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- Status Bar -->
+        <StatusBar Grid.Row="2" Background="{StaticResource PanelBackgroundBrush}" Foreground="{StaticResource PrimaryTextBrush}">
+            <StatusBarItem Content="Ready"/>
+        </StatusBar>
+    </Grid>
+</Window>
